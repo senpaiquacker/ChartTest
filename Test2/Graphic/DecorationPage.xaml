@@ -1,0 +1,14 @@
+﻿<Page x:Class="Test2.Graphic.DecorationPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Test2.Graphic"
+      mc:Ignorable="d" 
+      Title="DecorationPage">
+
+    <Grid x:Name="body" Background="Transparent">
+        <Rectangle Fill="Red" Height="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch"></Rectangle>
+        <Rectangle Fill="Red" Width="1" VerticalAlignment="Stretch" HorizontalAlignment="Left"></Rectangle>
+    </Grid>
+</Page>
