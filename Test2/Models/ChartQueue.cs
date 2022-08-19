@@ -17,10 +17,16 @@ namespace Test2.Models
             set
             {
                 buffer = value;
-                while(buffer < Count)
-                    Dequeue();
+                while (buffer < Count)
+                    HandleOverflow();
             }
         }
+
+        private Action OverflowAction;
+
+        public int Count { get; private set; }
+
+
         public ChartQueue()
         {
             Head = Tail = new NullNode<T>();
@@ -33,6 +39,8 @@ namespace Test2.Models
             Count = 0;
             Buffer = buffer;
         }
+
+
         public void Enqueue(T value)
         {
             if (Head is NullNode<T>)
@@ -43,12 +51,9 @@ namespace Test2.Models
                 Tail = Tail.Next;
             }
             if(Buffer != null && Count == Buffer)
-            {
-                Dequeue();
-            }
+                HandleOverflow();
             Count++;
         }
-
         public T Dequeue()
         {
             var answ = Peek();
@@ -56,19 +61,29 @@ namespace Test2.Models
             Count--;
             return answ;
         }
-
         public T Peek()
         {
             if (Head is NullNode<T>)
                 return default(T);
             else return ((ValueNode<T>)Head).Value;
         }
-
         public T PeekEnd()
         {
             if (Tail is NullNode<T>)
                 return default(T);
             else return ((ValueNode<T>)Tail).Value;
+        }
+
+        public void AssignActionOnOverflow(Action func)
+        {
+            OverflowAction += func;
+        }
+
+        private void HandleOverflow()
+        {
+            if(OverflowAction != null)
+                OverflowAction();
+            Dequeue();
         }
 
         public IEnumerator<T> GetEnumerator()
@@ -81,19 +96,16 @@ namespace Test2.Models
                 pointer = pointer.Next;
             }
         }
-
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
 
-        public int Count { get; private set; }
 
         private interface QueueNode<T>
         {
             public QueueNode<T> Next { get; set; }
         }
-
         private class ValueNode<T> : QueueNode<T>
         {
             public T Value;
@@ -110,7 +122,6 @@ namespace Test2.Models
             }
             public ValueNode() { }
         }
-
         private class NullNode<T> : QueueNode<T>
         {
             public NullNode() : base() { }

@@ -1,29 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading;
+using System.Windows.Threading;
 namespace Test2.Utility
 {
     public class GeneratorTimer
     {
-        public Action Function { get; private set; }
-        public int Time { get; private set; }
+        private Action Function;
+        public int Milliseconds { get; private set; }
 
-        public GeneratorTimer(int milliseconds, Action func)
+        private DispatcherTimer Timer;
+
+        private int milliseconds { get => Milliseconds % 1000; }
+        private int seconds { get => Milliseconds / 1000 % 60; }
+        private int minutes { get => Milliseconds / (60 * 1000) % 60; }
+        private int hours { get => Milliseconds / (60 * 60 * 1000) % 24; }
+        private int days { get => Milliseconds / (60 * 60 * 24 * 1000); }
+
+        public GeneratorTimer(int milliseconds)
         {
-            Time = milliseconds;
-            Function = func;
-            LoopTime();
+            Milliseconds = milliseconds;
+            Timer = new DispatcherTimer();
+            Timer.Tick += new EventHandler(timerTick);
+            Timer.Interval = new TimeSpan(days, hours, minutes, seconds, this.milliseconds);
+            Timer.Start();
         }
-        
-        public void LoopTime()
+
+        public GeneratorTimer(int milliseconds, Action function)
+            : this(milliseconds)
         {
-            TimerCallback tm = new TimerCallback(CallFunction);
-            Timer timer = new Timer(tm, null, 0, Time);
+            Function = function;
         }
-        private void CallFunction(object obj)
+
+        public void AssignFunction(Action function)
         {
-            Function.Invoke();
+            Function += function;
+        }
+        private void timerTick(object sender, EventArgs e)
+        {
+            if(Function != null)
+                Function();
         }
     }
 }

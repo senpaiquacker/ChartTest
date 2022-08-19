@@ -7,8 +7,7 @@
       mc:Ignorable="d" 
       Title="DecorationPage">
 
-    <Grid x:Name="body" Background="Transparent">
-        <Rectangle Fill="Red" Height="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch"></Rectangle>
-        <Rectangle Fill="Red" Width="1" VerticalAlignment="Stretch" HorizontalAlignment="Left"></Rectangle>
+    <Grid x:Name="body" Background="Transparent" >
+        <Border BorderBrush="Red" BorderThickness="1,0,0,1"></Border>
     </Grid>
 </Page>
