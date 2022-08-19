@@ -5,6 +5,8 @@ using System.Windows.Threading;
 using System;
 using Test2.Models;
 using Point = Test2.Models.Point;
+using System.Collections.Generic;
+
 namespace Test2.Graphic
 {
     /// <summary>
@@ -32,6 +34,7 @@ namespace Test2.Graphic
         private int linepointer = 0;
 
         private Line lastLine = null;
+
         public DispatcherTimer Timer { get; private set; }
         public DotsPage()
         {
@@ -48,7 +51,7 @@ namespace Test2.Graphic
             InitializeComponent();
             Timer = new DispatcherTimer();
             Timer.Tick += new EventHandler(timerTick);
-            Timer.Interval = new TimeSpan(0, 0, 0, 0, 100);
+            Timer.Interval = new TimeSpan(0, 0, 0, 0, 10);
             Timer.Start();
         }
         private void timerTick(object sender, EventArgs e)
@@ -56,7 +59,7 @@ namespace Test2.Graphic
             var r = new Random();
             AddPointToQueue(xpointer, r.Next(0, VerticalBufferSize));
             linepointer++;
-            if (xpointer < HorizontalBufferSize)
+            if (xpointer < HorizontalBufferSize - 1)
                 xpointer++;
         }
         public void AddPointToQueue(double x, double y)
@@ -78,7 +81,7 @@ namespace Test2.Graphic
             var line = new Line();
             if (lastLine == null)
             {
-                line.X1 = realwidth / HorizontalBufferSize * point1.X;
+                line.X1 = realwidth / (HorizontalBufferSize - 1) * point1.X;
                 line.Y1 = realheight / VerticalBufferSize * (VerticalBufferSize - point1.Y);
             }
             else
@@ -86,13 +89,15 @@ namespace Test2.Graphic
                 line.X1 = lastLine.X2;
                 line.Y1 = lastLine.Y2;
             }
-            line.X2 = realwidth / HorizontalBufferSize * point2.X;
+            line.X2 = realwidth / (HorizontalBufferSize - 1) * point2.X;
             line.Y2 = realheight / VerticalBufferSize * (VerticalBufferSize - point2.Y);
+
             line.Margin = new System.Windows.Thickness(0, 0, 0, 0);
             line.Stroke = lineBrush;
             line.StrokeThickness = 1f;
             line.Visibility = System.Windows.Visibility.Visible;
             line.Name = "line" + (linepointer - 1).ToString();
+
             lastLine = line;
             chart_area.Children.Add(line);
         }
@@ -104,19 +109,14 @@ namespace Test2.Graphic
             {
                 if (((Line)c).Name == "line" + id.ToString())
                     found = (Line)c;
-            }
-            chart_area.Children.Remove(found);
-            foreach(var c in chart_area.Children)
-            {
                 MoveLeft((Line)c);
             }
+            chart_area.Children.Remove(found);
         }
         private void MoveLeft(Line line)
         {
-            line.X1 -= realwidth / HorizontalBufferSize;
-            line.X2 -= realwidth / HorizontalBufferSize;
-            if ((chart_area.Children[0] as Line).Name == "line7")
-                throw new Exception();
+            line.X1 -= realwidth / (HorizontalBufferSize - 1);
+            line.X2 -= realwidth / (HorizontalBufferSize - 1);
         }
     }
 }

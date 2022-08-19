@@ -24,7 +24,7 @@ namespace Test2.Graphic
             Width = 400;
             Height = 400;
             Decoration.Content = new DecorationPage();
-            DotsVisualised.Content = new DotsPage(10, 10, Height * 0.92, Width * 0.92);
+            DotsVisualised.Content = new DotsPage(100, 100, Height * 0.92, Width * 0.92);
         }
     }
 }

@@ -74,10 +74,11 @@ namespace Test2.Models
         public IEnumerator<T> GetEnumerator()
         {
             var pointer = Head;
-            while (pointer.Next != null)
+            while (pointer != null)
             {
                 if(pointer is ValueNode<T>)
                     yield return (pointer as ValueNode<T>).Value;
+                pointer = pointer.Next;
             }
         }
 
@@ -88,7 +89,7 @@ namespace Test2.Models
 
         public int Count { get; private set; }
 
-        private abstract class QueueNode<T>
+        private interface QueueNode<T>
         {
             public QueueNode<T> Next { get; set; }
         }
@@ -96,7 +97,13 @@ namespace Test2.Models
         private class ValueNode<T> : QueueNode<T>
         {
             public T Value;
-            public new ValueNode<T> Next { get; set; }
+            private ValueNode<T> next;
+            public QueueNode<T> Next 
+            { 
+                get => next; 
+                set => next = (ValueNode<T>)value; 
+            }
+
             public ValueNode(T value)
             {
                 Value = value;
@@ -108,7 +115,7 @@ namespace Test2.Models
         {
             public NullNode() : base() { }
 
-            public new NullNode<T> Next
+            public QueueNode<T> Next
             {
                 get => throw new NullReferenceException();
                 set => throw new NullReferenceException();
