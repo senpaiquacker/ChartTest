@@ -100,7 +100,17 @@ namespace Test2.Models
         {
             return GetEnumerator();
         }
-
+        public T[] ToArray()
+        {
+            var result = new T[Count];
+            int k = 0;
+            foreach(var i in this)
+            {
+                result[k] = i;
+                k++;
+            }
+            return result;
+        }
 
         private interface QueueNode<T>
         {

@@ -41,5 +41,14 @@ namespace Test2.Utility
             if(Function != null)
                 Function();
         }
+
+        public void Stop()
+        {
+            Timer.Stop();
+        }
+        public void Continue()
+        {
+            Timer.Start();
+        }
     }
 }

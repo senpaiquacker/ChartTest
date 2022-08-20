@@ -33,7 +33,6 @@ namespace Test2.Graphic
         }
 
         private uint horrange = 200;
-
         public uint HorizontalValueRange
         {
             get

@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Collections.Generic;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using Test2.Models;
@@ -8,8 +9,11 @@ namespace Test2.Graphic
 {
     public partial class DotsPage : Page
     {
+        public GeneratorTimer Timer { get; private set; }
+        private ChartQueue<Point> Points;
+        private List<double> XDistances;
+        #region Line
         public Brush lineBrush { get => new SolidColorBrush(Colors.Red); }
-
         public Line LineTemplate 
         { 
             get
@@ -24,7 +28,8 @@ namespace Test2.Graphic
             }
         }
         private Line lastLine = null;
-
+        #endregion
+        #region Buffer
         public int VerticalBufferSize { get; set; }
         private int horizontalBufferSize;
         public int HorizontalBufferSize 
@@ -38,19 +43,16 @@ namespace Test2.Graphic
                     xpointer = horizontalBufferSize;
             }
         }
-
-
-        private ChartQueue<Point> Points;
-
+        #endregion
+        #region Pointers
         private int xpointer = 0;
         private int linepointer = 0;
-
-
+        #endregion
+        #region Size
         private double realheight;
         private double realwidth;
-
-        public GeneratorTimer Timer { get; private set; }
-
+        #endregion
+        #region Constructors
         public DotsPage()
         {
             Points = new ChartQueue<Point>();
@@ -58,21 +60,23 @@ namespace Test2.Graphic
         }
         public DotsPage(int HorBufferSize, int VertBufferSize, double height, double width)
         {
-            Points = new ChartQueue<Point>((uint)HorBufferSize);
+            horizontalBufferSize = HorBufferSize;
+            VerticalBufferSize = VertBufferSize;
+
+            Points = new ChartQueue<Point>((uint)HorizontalBufferSize);
             Points.AssignActionOnOverflow(() =>
             { 
                 DestroyLine(linepointer - Points.Count);
             });
 
-            VerticalBufferSize = VertBufferSize;
-            HorizontalBufferSize = HorBufferSize;
+            XDistances = new List<double>(HorizontalBufferSize);
 
             realheight = height;
             realwidth = width;
 
             InitializeComponent();
 
-            Timer = new GeneratorTimer(20, () =>
+            Timer = new GeneratorTimer(1000, () =>
             {
                 var r = new System.Random();
                 AddPointToQueue(xpointer, r.Next(0, VerticalBufferSize + 1));
@@ -81,6 +85,7 @@ namespace Test2.Graphic
                     xpointer++;
             });
         }
+        #endregion
         public void AddPointToQueue(double x, double y)
         {
             var newpoint = new Point(x, y);
@@ -89,16 +94,19 @@ namespace Test2.Graphic
             {
                 BuildLine(point, newpoint);
                 Points.Enqueue(newpoint);
+                
             }
             else Points.Enqueue(newpoint);
         }
-
+        #region LineMethods
         private void BuildLine(Point point1, Point point2)
         {
-            var line = LineTemplate;
+            Line line;
+            line = LineTemplate;
+            XDistances.Add(realwidth / (HorizontalBufferSize - 1));
             if (lastLine == null)
             {
-                line.X1 = realwidth / (HorizontalBufferSize - 1) * point1.X;
+                line.X1 = XDistances[XDistances.Count - 1] * point1.X;
                 line.Y1 = realheight - realheight / VerticalBufferSize * point1.Y;
             }
             else
@@ -106,27 +114,36 @@ namespace Test2.Graphic
                 line.X1 = lastLine.X2;
                 line.Y1 = lastLine.Y2;
             }
-            line.X2 = realwidth / (HorizontalBufferSize - 1) * point2.X;
+            line.X2 = XDistances[XDistances.Count - 1] * point2.X;
             line.Y2 = realheight - realheight / VerticalBufferSize * point2.Y;
-            lastLine = line;
             chart_area.Children.Add(line);
         }
-        
         private void DestroyLine(int id)
         {
             Line found = null;
-            foreach (var c in chart_area.Children)
+            int k = 0;
+            foreach (var p in Points)
             {
+                p.X--;
+                if (k == 0)
+                {
+                    k++;
+                    continue;
+                }
+                var c = chart_area.Children[k - 1] as Line;
                 if (((Line)c).Name == "line" + id.ToString())
                     found = (Line)c;
-                MoveLeft((Line)c);
+                MoveLeft((Line)c, XDistances[k - 1]);
+                k++;
             }
+            XDistances.RemoveAt(0);
             chart_area.Children.Remove(found);
         }
-        private void MoveLeft(Line line)
+        private void MoveLeft(Line line, double distance)
         {
-            line.X1 -= realwidth / (HorizontalBufferSize - 1);
-            line.X2 -= realwidth / (HorizontalBufferSize - 1);
+            line.X1 -= distance;
+            line.X2 -= distance;
         }
+        #endregion
     }
 }

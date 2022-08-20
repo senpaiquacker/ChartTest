@@ -76,7 +76,7 @@ namespace Test2.Graphic {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/Test2;component/graphic/graphicpage.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/Test2;V1.0.0.0;component/graphic/graphicpage.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\Graphic\GraphicPage.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
