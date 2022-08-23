@@ -7,7 +7,7 @@
       mc:Ignorable="d" 
       Title="DotsPage">
 
-    <Grid x:Name="body" Background="White">
+    <Grid x:Name="body" Background="Transparent">
         <Canvas x:Name="chart_area">
             
         </Canvas>

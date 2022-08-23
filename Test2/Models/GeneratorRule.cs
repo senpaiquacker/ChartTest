@@ -81,6 +81,7 @@ namespace Test2.Models
 
         private int MaxY;
         private int MinY;
+        private int oldMinY;
 
         private double AMult;
 
@@ -92,6 +93,8 @@ namespace Test2.Models
             XBuffer = HorizontalBuffer;
             YBuffer = VerticalBuffer;
             range = YBuffer / 8;
+            RegenerateLine();
+            oldMinY = MinY;
         }
         private void RegenerateLine()
         {
@@ -114,11 +117,14 @@ namespace Test2.Models
             int value = 0;
             var Stage = CycleStep / (XBuffer / 4);
             if (CycleStep == 0)
+            {
+                oldMinY = MinY;
                 RegenerateLine();
+            }
             switch(Stage)
             {
                 case 0:
-                    value = (int)Math.Round(MinY + (CycleStep % (XBuffer / 4)) * AMult + Rand.Next(-range, range));
+                    value = (int)Math.Round(oldMinY + (CycleStep % (XBuffer / 4)) * AMult + Rand.Next(-range, range));
                     break;
                 case 1:
                     value = (int)Math.Round((double)(MaxY + Rand.Next(-range, range)));

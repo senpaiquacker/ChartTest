@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -18,6 +19,15 @@ namespace Test2.Graphic
     /// </summary>
     public partial class GraphicPage : Page
     {
+        private Brush[] BrushCollection = new Brush[]
+        {
+            new SolidColorBrush(Colors.Red),
+            new SolidColorBrush(Colors.Blue),
+            new SolidColorBrush(Colors.Green),
+            new SolidColorBrush(Colors.Black),
+            new SolidColorBrush(Colors.DeepPink)
+        };
+        private int brushpointer = 0;
         private uint vertrange = 100;
         public uint VerticalValueRange
         {
@@ -28,7 +38,9 @@ namespace Test2.Graphic
             set
             {
                 vertrange = value;
-                (DotsVisualised.Content as DotsPage).VerticalBufferSize = (int)vertrange;
+                foreach (Frame f in body.Children)
+                    if (f.Name.StartsWith("Trend"))
+                        (f.Content as DotsPage).VerticalBufferSize = (int)horrange;
             }
         }
 
@@ -42,9 +54,31 @@ namespace Test2.Graphic
             set
             {
                 horrange = value;
-                (DotsVisualised.Content as DotsPage).HorizontalBufferSize = (int)horrange;
+                foreach(Frame f in body.Children)
+                    if (f.Name.StartsWith("Trend"))
+                        (f.Content as DotsPage).HorizontalBufferSize = (int)horrange;
+                
             }
 
+        }
+        private int trendNum = 0;
+        public int NumberOfTrends
+        {
+            get => trendNum;
+            set
+            {
+                while(value > trendNum)
+                {
+                    AddTrend(trendNum, BrushCollection[brushpointer]);
+                    brushpointer = (brushpointer + 1) % BrushCollection.Length;
+                    trendNum++;
+                }
+                while(value < trendNum)
+                {
+                    trendNum--;
+                    RemoveTrend(trendNum);
+                }
+            }
         }
         public GraphicPage()
         {
@@ -52,7 +86,44 @@ namespace Test2.Graphic
             Width = 400;
             Height = 400;
             Decoration.Content = new DecorationPage();
-            DotsVisualised.Content = new DotsPage((int)horrange, (int)vertrange, Height * 0.94, Width * 0.94);
+        }
+        public GraphicPage(int trends):this()
+        {
+            NumberOfTrends = trends;
+        }
+        private void AddTrend(int id, Brush color)
+        {
+            var frame = new Frame();
+            frame.SetValue(Panel.ZIndexProperty, id);
+            frame.SetValue(Grid.ColumnProperty, 1);
+            frame.SetValue(Grid.ColumnSpanProperty, 2);
+            frame.SetValue(Grid.RowProperty, 2);
+            frame.SetValue(Grid.RowSpanProperty, 2);
+            frame.Name = "Trend" + id;
+            frame.Background = new SolidColorBrush(Colors.Transparent);
+            if (id == 0)
+                frame.Content = new DotsPage((int)horrange, (int)vertrange, Height * 0.94, Width * 0.94, color);
+            else
+            {
+                var pointer = ((body.Children[1] as Frame).Content as DotsPage).Pointer;
+                frame.Content = new DotsPage((int)horrange, (int)vertrange, Height * 0.94, Width * 0.94, color, pointer);
+            }
+            body.Children.Add(frame);
+        }
+        private void RemoveTrend(int id)
+        {
+            Frame frame = null;
+            foreach(Frame f in body.Children)
+            {
+                if (f.Name.StartsWith("Trend") && f.Name.EndsWith(id.ToString()))
+                {
+                    frame = f;
+                    break;
+                }
+            }
+            if (frame == null)
+                throw new ArgumentException();
+            body.Children.Remove(frame);
         }
     }
 }

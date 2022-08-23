@@ -23,7 +23,7 @@ namespace Test2
     {
         public MainWindow()
         {
-            var window = new GraphicPage();
+            var window = new GraphicPage(1);
 
             var frame = new Frame();
             frame.Content = window;
@@ -41,10 +41,16 @@ namespace Test2
 
             var vtext = new TextBlock();
             var htext = new TextBlock();
+            var trtext = new TextBlock();
             vtext.Foreground = new SolidColorBrush(Colors.White);
             htext.Foreground = new SolidColorBrush(Colors.White);
+            trtext.Foreground = new SolidColorBrush(Colors.White);
             vtext.HorizontalAlignment = HorizontalAlignment.Center;
             htext.HorizontalAlignment = HorizontalAlignment.Center;
+            trtext.HorizontalAlignment = HorizontalAlignment.Center;
+            vtext.Text = "VerticalBuffer:";
+            htext.Text = "HorizontalBuffer:";
+            trtext.Text = "Number Of Trends:";
 
             var verticalslider = CreateIntSlider(1, 500, 200);
             verticalslider.ValueChanged += (object sender, RoutedPropertyChangedEventArgs<double> e) =>
@@ -61,10 +67,30 @@ namespace Test2
                 window.HorizontalValueRange = val;
             };
 
+            var trendCheck = new CheckBox();
+            trendCheck.IsChecked = false;
+            trendCheck.Click += (object sender, RoutedEventArgs e) =>
+            {
+                var val = trendCheck.IsChecked;
+                if(val.Value)
+                {
+                    trtext.Text = "NumberOfTrends: 2";
+                    window.NumberOfTrends = 2;
+                }
+                else
+                {
+                    trtext.Text = "NumberOfTrends: 1";
+                    window.NumberOfTrends = 1;
+                }
+                
+            };
+
             panel.Children.Add(vtext);
             panel.Children.Add(verticalslider);
             panel.Children.Add(htext);
             panel.Children.Add(horizontalslider);
+            panel.Children.Add(trtext);
+            panel.Children.Add(trendCheck);
 
             InitializeComponent();
             body.Children.Add(frame);

@@ -14,14 +14,15 @@ namespace Test2.Graphic
         private List<double> XDistances;
         private GeneratorRule generator;
         #region Line
-        public Brush lineBrush { get => new SolidColorBrush(Colors.Red); }
+        private Brush brush = new SolidColorBrush(Colors.Red);
+        public Brush LineBrush { get => brush; private set => brush = value; }
         public Line LineTemplate 
         { 
             get
             {
                 var line = new Line();
                 line.Margin = new System.Windows.Thickness(0, 0, 0, 0);
-                line.Stroke = lineBrush;
+                line.Stroke = LineBrush;
                 line.StrokeThickness = 1f;
                 line.Visibility = System.Windows.Visibility.Visible;
                 line.Name = "line" + (linepointer - 1).ToString();
@@ -48,6 +49,7 @@ namespace Test2.Graphic
         #region Pointers
         private int xpointer = 0;
         private int linepointer = 0;
+        public int Pointer { get => linepointer; }
         #endregion
         #region Size
         private double realheight;
@@ -85,6 +87,24 @@ namespace Test2.Graphic
                 if (xpointer < HorizontalBufferSize)
                     xpointer++;
             });
+        }
+
+        public DotsPage(int HorBufferSize, int VertBufferSize, double height, double width, Brush custom)
+            : this(HorBufferSize, VertBufferSize, height, width)
+        {
+            LineBrush = custom;
+        }
+        public DotsPage(int HorBufferSize, int VertBufferSize, double height, double width, Brush custom, int XPointer)
+            : this(HorBufferSize, VertBufferSize, height, width, custom)
+        {
+            while(XPointer > 0)
+            {
+                AddPointToQueue(xpointer, 0);
+                linepointer++;
+                if (xpointer < HorizontalBufferSize)
+                    xpointer++;
+                XPointer--;
+            }    
         }
         #endregion
         public void AddPointToQueue(double x, double y)
