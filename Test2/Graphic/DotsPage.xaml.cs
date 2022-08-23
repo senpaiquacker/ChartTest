@@ -12,6 +12,7 @@ namespace Test2.Graphic
         public GeneratorTimer Timer { get; private set; }
         private ChartQueue<Point> Points;
         private List<double> XDistances;
+        private GeneratorRule generator;
         #region Line
         public Brush lineBrush { get => new SolidColorBrush(Colors.Red); }
         public Line LineTemplate 
@@ -73,13 +74,13 @@ namespace Test2.Graphic
 
             realheight = height;
             realwidth = width;
-
+            var gen = new GeneratorIn4Cycles(HorizontalBufferSize, VerticalBufferSize);
+            generator = gen;
             InitializeComponent();
 
-            Timer = new GeneratorTimer(1000, () =>
+            Timer = new GeneratorTimer(20, () =>
             {
-                var r = new System.Random();
-                AddPointToQueue(xpointer, r.Next(0, VerticalBufferSize + 1));
+                AddPointToQueue(xpointer, gen.GenerateValue(linepointer, VerticalBufferSize));
                 linepointer++;
                 if (xpointer < HorizontalBufferSize)
                     xpointer++;
